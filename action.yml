@@ -77,7 +77,7 @@ runs:
         NAME: ${{ fromJSON(steps.config-parser.outputs.pub_config).publishers.rules.signature-check.name }}
         SCRIPT: ${{ fromJSON(steps.config-parser.outputs.pub_config).publishers.rules.signature-check.script }}
         KEYS: ${{ fromJSON(steps.config-parser.outputs.pub_config).publishers.rules.signature-check.keys }}
-        KEYS_FILE_LOCATION: ${{ GITHUB_WORKSPACE }}/${{ inputs.temp-dir }}/KEYS
+        KEYS_FILE_LOCATION: ${{ github.workspace }}/${{ inputs.temp-dir }}/KEYS
       working-directory: ./${{ inputs.temp-dir }}/${{ fromJSON(steps.config-parser.outputs.pub_config).publishers.path }}
       run: |
         curl -o $KEYS_FILE_LOCATION $KEYS 
