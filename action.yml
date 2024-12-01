@@ -1,0 +1,11 @@
+
+name: 'GH SVN PyPI Publisher'
+description: 'Publishes artifacts to pypi'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
