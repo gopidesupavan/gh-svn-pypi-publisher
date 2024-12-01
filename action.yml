@@ -10,7 +10,7 @@ inputs:
     required: false
     default: 'temp-svn-repo'
   mode:
-    description: 'Mode to run the action'
+    description: 'Mode to operate publish or verify'
     required: false
     default: 'verify'
 

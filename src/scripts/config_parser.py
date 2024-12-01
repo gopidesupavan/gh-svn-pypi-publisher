@@ -7,7 +7,7 @@ DEFAULT_SVN_CHECKER_SCRIPT = "{github_action_path}/src/scripts/svn_checker.py"
 DEFAULT_CHECK_SUM_SCRIPT = "{github_action_path}/src/scripts/checksum_check.sh"
 
 
-def set_default_config(config_data):
+def set_default_config(config_data: dict):
     svn_checker_script = config_data.get("publishers", {}).get("rules", {}).get("svn-check", {}).get("script")
     if not svn_checker_script:
         config_data["publishers"]["rules"]["svn-check"]["script"] = DEFAULT_SVN_CHECKER_SCRIPT.format(github_action_path=os.environ.get("GITHUB_ACTION_PATH"))
@@ -19,16 +19,16 @@ def set_default_config(config_data):
     return config_data
 
 
-def parse_config(path):
+def parse_config(path: str):
     with open(path, 'r') as file:
         config_data = yaml.safe_load(file)
 
     updated_config_data = set_default_config(config_data)
 
     def set_multiline_output(name, updated_data):
-        with open(os.environ['GITHUB_OUTPUT'], 'a') as fh:
+        with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
             value = json.dumps(updated_data)
-            fh.write(f'{name}={value}')
+            f.write(f'{name}={value}')
             
     set_multiline_output("pub_config", updated_config_data)
 
