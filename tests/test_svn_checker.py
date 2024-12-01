@@ -6,10 +6,9 @@ from src.scripts.svn_checker import (check_extension, extract_name, validate_pac
 
 def test_check_extension():
 
-    assert check_extension("file.txt", [".txt"]) == True
-    assert check_extension("file.txt", [".py"]) == False
-    assert check_extension("file.py", [".py"]) == True
-    assert check_extension("file.py", [".txt"]) == False
+    assert check_extension("file.tar.gz", [".tar.gz"]) == True
+    assert check_extension("file.tar.gz.sha512", [".tar.gz"]) == False
+    assert check_extension("file.tar.gz.sha512", [".tar.gz.sha512"]) == True
 
 def test_extract_name():
     assert extract_name("^(.*?)-(rc\\d+-)?\\d+", "apache_airflow_client-2.10.0.tar.gz.sha512") == "apache_airflow_client"
