@@ -23,3 +23,8 @@ publishers:
             name: "SHA512 Check"
             type: "512"
             enabled: "false"
+      signature-check:
+            name: "Signature Check"
+            enabled: "false"
+            script: "/home/runner/work/gh-svn-pypi-publisher/gh-svn-pypi-publisher/scripts/signature_check.sh"
+            keys: "https://dist.apache.org/repos/dist/release/airflow/KEYS"

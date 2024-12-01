@@ -5,6 +5,7 @@ import yaml
 
 DEFAULT_SVN_CHECKER_SCRIPT = "{github_action_path}/src/scripts/svn_checker.py"
 DEFAULT_CHECK_SUM_SCRIPT = "{github_action_path}/src/scripts/checksum_check.sh"
+DEFAULT_SIGNATURE_CHECK_SCRIPT = "{github_action_path}/src/scripts/signature_check.sh"
 
 
 def set_default_config(config_data: dict):
@@ -15,6 +16,10 @@ def set_default_config(config_data: dict):
     check_sum_script = config_data.get("publishers", {}).get("rules", {}).get("checksum-check", {}).get("script")
     if not check_sum_script:
         config_data["publishers"]["rules"]["checksum-check"]["script"] = DEFAULT_CHECK_SUM_SCRIPT.format(github_action_path=os.environ.get("GITHUB_ACTION_PATH"))
+
+    signature_check_script = config_data.get("publishers", {}).get("rules", {}).get("signature-check", {}).get("script")
+    if not signature_check_script:
+        config_data["publishers"]["rules"]["signature-check"]["script"] = DEFAULT_SIGNATURE_CHECK_SCRIPT.format(github_action_path=os.environ.get("GITHUB_ACTION_PATH"))
 
     return config_data
 

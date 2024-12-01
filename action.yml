@@ -70,6 +70,22 @@ runs:
         chmod +x $SCRIPT
         $SCRIPT "$type"
 
+    - name: Signature check
+      shell: bash
+      if: ${{ fromJSON(steps.config-parser.outputs.pub_config).publishers.rules.signature-check.enabled == 'true' }}
+      env:
+        NAME: ${{ fromJSON(steps.config-parser.outputs.pub_config).publishers.rules.signature-check.name }}
+        SCRIPT: ${{ fromJSON(steps.config-parser.outputs.pub_config).publishers.rules.signature-check.script }}
+        KEYS: ${{ fromJSON(steps.config-parser.outputs.pub_config).publishers.rules.signature-check.keys }}
+        KEYS_FILE_LOCATION: ${{ GITHUB_WORKSPACE }}/${{ inputs.temp-dir }}/KEYS
+      working-directory: ./${{ inputs.temp-dir }}/${{ fromJSON(steps.config-parser.outputs.pub_config).publishers.path }}
+      run: |
+        curl -o $KEYS_FILE_LOCATION $KEYS 
+        gpg --import $KEYS_FILE_LOCATION
+        echo "Verifying $NAME"
+        chmod +x $SCRIPT
+        $SCRIPT
+
     - name: Publish to PyPI
       shell: bash
       if: ${{ inputs.mode == 'publish' }}
