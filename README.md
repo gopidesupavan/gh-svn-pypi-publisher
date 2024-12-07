@@ -1,1 +1,0 @@
-# gh-svn-pypi-publisher
