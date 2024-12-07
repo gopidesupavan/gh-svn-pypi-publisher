@@ -17,5 +17,5 @@ jobs:
           python-version: '3.9'
       - name: "Run tests"
         run: |
-            python3 -m pip install pytest
-            pytest
+            python3 -m pip install uv
+            uv run pytest
