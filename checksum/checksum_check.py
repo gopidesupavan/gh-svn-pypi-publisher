@@ -7,6 +7,8 @@
 import hashlib
 import json
 import os
+from typing import Any
+
 from rich.console import Console
 
 console = Console(width=400, color_system="standard")
@@ -39,7 +41,7 @@ def validate_checksum(check_sum_files: list[dict[str, str]], algorithm: str):
             )
 
 
-def get_valid_files(algorithm, files) -> list[dict[str, str]]:
+def get_valid_files(algorithm: str, files: list[str]) -> list[dict[str, str]]:
     eligible_files = []
     for file in files:
         if file.endswith(algorithm):
@@ -53,10 +55,12 @@ def get_valid_files(algorithm, files) -> list[dict[str, str]]:
 
 
 if __name__ == "__main__":
-    check_sum_config = json.loads(os.environ.get("CHECK_SUM_CONFIG"))
+    check_sum_config: list[dict[str, Any]] = json.loads(
+        os.environ.get("CHECK_SUM_CONFIG")
+    )
 
     for check in check_sum_config:
-        console.print(f"[blue]Checking {check.get('description')} checksum[/]")
+        console.print(f"[blue]{check.get('description')}[/]")
         valid_files = get_valid_files(check.get("algorithm"), svn_files)
         validate_checksum(valid_files, check.get("algorithm"))
 

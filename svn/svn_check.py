@@ -1,12 +1,16 @@
 # /// script
-# requires-python = ">=3.9"
+# requires-python = ">=3.11"
 # dependencies = [
 #     "rich",
 # ]
 # ///
+from __future__ import annotations
+
 import json
 import os
 import re
+from typing import Any
+
 from rich.console import Console
 
 console = Console(width=400, color_system="standard")
@@ -17,7 +21,7 @@ unknown_files = []
 unknown_file_extensions = []
 
 
-def check_with_regex(file_to_check, pattern, check_type):
+def check_with_regex(file_to_check: str, pattern: str, check_type: str) -> bool | None:
     match = re.match(pattern, file_to_check)
 
     if check_type == "extension":
@@ -27,7 +31,9 @@ def check_with_regex(file_to_check, pattern, check_type):
         return match and match.group(1) in file_to_check
 
 
-def check_files_with_identifiers(identifiers, all_files, check_type):
+def check_files_with_identifiers(
+    identifiers: list[dict[str, Any]], all_files: list[str], check_type: str
+):
     all_files_copy = all_files.copy()
 
     for identifier in identifiers:
@@ -48,7 +54,9 @@ def check_files_with_identifiers(identifiers, all_files, check_type):
 
 
 if __name__ == "__main__":
-    svn_check_config = json.loads(os.environ.get("SVN_CHECK_CONFIG"))
+    svn_check_config: list[dict[str, Any]] = json.loads(
+        os.environ.get("SVN_CHECK_CONFIG")
+    )
 
     for check in svn_check_config:
         console.print(f"[blue]{check.get('description')}[/]")

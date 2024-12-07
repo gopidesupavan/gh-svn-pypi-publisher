@@ -1,18 +1,18 @@
-name: 'Checksum Validator'
-description: 'Validate checksum of packages'
+name: "Checksum Validator"
+description: "Validate checksum of packages"
 inputs:
   checksum-config:
-    description: 'Json config for checksum'
+    description: "Json config for checksum"
     required: true
   temp-dir:
-    description: 'Checkout directory of svn repo'
+    description: "Checkout directory of svn repo"
     required: false
-    default: 'temp-svn-repo'
+    default: "temp-svn-repo"
   repo-path:
-    description: 'Path to the svn repo ex: airflow/providers/'
+    description: "Path to the svn repo ex: airflow/providers/"
     required: true
   repo-url:
-    description: 'URL of the svn repo ex: https://dist.apache.org/repos/dist/release/airflow/'
+    description: "URL of the svn repo ex: https://dist.apache.org/repos/dist/release/airflow/"
     required: true
 
 
@@ -22,7 +22,7 @@ runs:
     - name: Setup Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.9'
+        python-version: "3.11"
 
     - name: "Check sum validation"
       shell: bash
