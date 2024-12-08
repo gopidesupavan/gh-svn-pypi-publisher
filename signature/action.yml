@@ -12,6 +12,17 @@ inputs:
     required: false
     default: "asf-dist"
 
+  repo-path:
+    description: >
+      Path to the svn repo. Lets say to publish the packages from the dev folder.
+      eg: svn repo structure is https://dist.apache.org/repos/dist/
+        dev/airflow/providers
+        release/airflow/providers
+      now to publish the packages from dev providers folder, set url and path like below in the release-config.yml
+      url: https://dist.apache.org/repos/dist/dev/airflow
+      repo-path: providers/
+    required: true
+
 runs:
   using: "composite"
   steps:
@@ -24,6 +35,7 @@ runs:
       shell: bash
       id: signature-check
       env:
+        REPO_PATH: ${{ inputs.repo-path }}
         SIGNATURE_CHECK_CONFIG: ${{ inputs.signature-config }}
       run: |
         python3 -m pip install uv

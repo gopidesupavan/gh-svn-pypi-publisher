@@ -53,6 +53,7 @@ jobs:
        with:
         svn-config: ${{ steps.config-parser.outputs.checks-svn }}
         temp-dir: ${{ inputs.temp-dir }}
+        repo-path: ${{ fromJSON(steps.config-parser.outputs.publisher-path) }}
 
      - name: "Checksum check"
        id: "checksum-check"
@@ -60,6 +61,7 @@ jobs:
        with:
         checksum-config: ${{ steps.config-parser.outputs.checks-checksum }}
         temp-dir: ${{ inputs.temp-dir }}
+        repo-path: ${{ fromJSON(steps.config-parser.outputs.publisher-path) }}
 
      - name: "Signature check"
        id: "signature-check"
@@ -67,6 +69,7 @@ jobs:
        with:
         signature-config: ${{ steps.config-parser.outputs.checks-signature }}
         temp-dir: ${{ inputs.temp-dir }}
+        repo-path: ${{ fromJSON(steps.config-parser.outputs.publisher-path) }}
 
      - name: "Find ${{ steps.config-parser.outputs.publisher-name }} packages"
        id: "publish-to-pypi"
@@ -76,6 +79,7 @@ jobs:
         temp-dir: ${{ inputs.temp-dir }}
         mode: ${{ inputs.mode }}
         publisher-name: ${{ fromJSON(steps.config-parser.outputs.publisher-name) }}
+        repo-path: ${{ fromJSON(steps.config-parser.outputs.publisher-path) }}
 
      - name: "Download release distributions for ${{ steps.config-parser.outputs.publisher-name }}"
        uses: actions/download-artifact@v4

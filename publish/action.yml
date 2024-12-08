@@ -24,17 +24,31 @@ inputs:
       compare: Section contains the release packages, which is used to compare the packages in dev folder and only matching 
       packages will be published to PyPI.
     required: true
+
   temp-dir:
     description: >
       Checkout directory of svn repo, this is used to checkout the svn repo.
     required: false
     default: "asf-dist"
+
+  repo-path:
+    description: >
+      Path to the svn repo. Lets say to publish the packages from the dev folder.
+      eg: svn repo structure is https://dist.apache.org/repos/dist/
+        dev/airflow/providers
+        release/airflow/providers
+      now to publish the packages from dev providers folder, set url and path like below in the release-config.yml
+      url: https://dist.apache.org/repos/dist/dev/airflow
+      repo-path: providers/
+    required: true
+
   mode:
     description: >
       Mode to run the action, The default mode is 'VERIFY' which will only verify the packages and displays the what will be published.
       to publish the packages to PyPI set the mode to 'RELEASE'.
     required: false
     default: "VERIFY"
+
   publisher-name:
     description: >
       Name of the publisher eg: providers, this is used to name the steps in the workflow
