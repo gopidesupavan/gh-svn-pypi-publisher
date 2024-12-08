@@ -9,8 +9,6 @@ import tempfile
 import tarfile
 
 
-
-
 def test_get_valid_files_sha512():
     files = [
         "apache-airflow-2.10.3-source.tar.gz.sha512",
@@ -29,6 +27,7 @@ def test_get_valid_files_sha512():
             "check_file": "apache_airflow-2.10.3-py3-none-any.whl",
         },
     ]
+
 
 def test_get_valid_files_with_sha256():
     files = [
@@ -49,6 +48,7 @@ def test_get_valid_files_with_sha256():
         },
     ]
 
+
 @patch("hashlib.file_digest")
 def test_validate_checksum(mock_file_digest):
     mock_file_digest.return_value.hexdigest.return_value = "bbc759357eb1980e7f80ba0b016e9ed02120e26fcd008129b5777baf8086208c45e170e3c98cf35bd96a246d59484bde3220a897e5e6a7f688a69a40bcd451bd"
@@ -67,9 +67,7 @@ def test_validate_checksum(mock_file_digest):
         temp_file.write(
             b"bbc759357eb1980e7f80ba0b016e9ed02120e26fcd008129b5777baf8086208c45e170e3c98cf35bd96a246d59484bde3220a897e5e6a7f688a69a40bcd451bd apache-airflow-2.10.3-source.tar.gz"
         )
-    tar = tarfile.open(
-        temp_dir.name + "/apache-airflow-2.10.3-source.tar.gz", "w:gz"
-    )
+    tar = tarfile.open(temp_dir.name + "/apache-airflow-2.10.3-source.tar.gz", "w:gz")
     tar.add(temp_file.name)
     tar.close()
 
@@ -81,6 +79,7 @@ def test_validate_checksum(mock_file_digest):
     ]
     validate_checksum(check_sum_files, "sha512")
     assert invalid_checksums == []
+
 
 @patch("hashlib.file_digest")
 def test_validate_checksum_invalid(mock_file_digest):
@@ -99,9 +98,7 @@ def test_validate_checksum_invalid(mock_file_digest):
         temp_file.write(
             b"bbc759357eb1980e7f80ba0b016e9ed02120e26fcd008129b5777baf8086208c45e170e3c98cf35bd96a246d59484bde3220a897e5e6a7f688a69a40bcd451bd apache-airflow-2.10.3-source.tar.gz"
         )
-    tar = tarfile.open(
-        temp_dir.name + "/apache-airflow-2.10.3-source.tar.gz", "w:gz"
-    )
+    tar = tarfile.open(temp_dir.name + "/apache-airflow-2.10.3-source.tar.gz", "w:gz")
     tar.add(temp_file.name)
     tar.close()
 

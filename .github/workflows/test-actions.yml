@@ -1,21 +1,22 @@
-name: GH pypi publish
-description: 'Publish to PyPI'
+name: Tes gh-svn-pypi-publisher
+description: "Publish to PyPI"
 
 on:
   workflow_dispatch:
     inputs:
       publish-config:
-        description: 'Path to the publish config file'
+        description: "Path to the publish config file"
         required: true
-        default: 'publish-config.yml'
+        default: "release-config.yml"
       temp-dir:
-        description: 'Temporary directory to checkout svn repo'
+        description: >
+          Checkout directory of svn repo, this is used to checkout the svn repo.
         required: false
-        default: 'temp-svn-repo'
+        default: "asf-dist"
       mode:
-        description: 'Mode to run the action'
+        description: "Mode to run the action"
         required: false
-        default: 'verify'
+        default: "VERIFY"
 
 jobs:
   gh-action-pypi-publish:
@@ -28,7 +29,7 @@ jobs:
      - name: Setup Python
        uses: actions/setup-python@v4
        with:
-         python-version: '3.11'
+         python-version: "3.11"
 
      - name: "Config parser"
        id: config-parser
@@ -67,3 +68,28 @@ jobs:
         signature-config: ${{ steps.config-parser.outputs.checks-signature }}
         repo-url: ${{ fromJSON(steps.config-parser.outputs.publisher-url) }}
         repo-path: ${{ fromJSON(steps.config-parser.outputs.publisher-path) }}
+
+     - name: "Find ${{ steps.config-parser.outputs.publisher-name }} packages"
+       permissions:
+         id-token: write
+       id: "publish-to-pypi"
+       uses: ./publish
+       with:
+        publish-config: ${{ steps.config-parser.outputs.checks-publish }}
+        repo-url: ${{ fromJSON(steps.config-parser.outputs.publisher-url) }}
+        repo-path: ${{ fromJSON(steps.config-parser.outputs.publisher-path) }}
+        temp-dir: ${{ inputs.temp-dir }}
+        mode: ${{ inputs.mode }}
+        publisher-name: ${{ fromJSON(steps.config-parser.outputs.publisher-name) }}
+
+     - name: "Download release distributions for ${{ steps.config-parser.outputs.publisher-name }}"
+       uses: actions/download-artifact@v4
+       with:
+         merge-multiple: true
+         path: ./dist
+
+     - name: "Publishing ${{ steps.config-parser.outputs.publisher-name }} to PyPI"
+       uses: pypa/gh-action-pypi-publish@release/v1
+       if: inputs.mode == 'RELEASE'
+       with:
+         packages-dir: "./dist"

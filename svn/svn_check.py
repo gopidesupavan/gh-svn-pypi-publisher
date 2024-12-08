@@ -58,6 +58,13 @@ if __name__ == "__main__":
         os.environ.get("SVN_CHECK_CONFIG")
     )
 
+    if not svn_check_config:
+        console.print(
+            "[red]Error:  SVN_CHECK_CONFIG not set[/]\n"
+            "You must set `SVN_CHECK_CONFIG` environment variable to run this script"
+        )
+        exit(1)
+
     for check in svn_check_config:
         console.print(f"[blue]{check.get('description')}[/]")
         check_files_with_identifiers(

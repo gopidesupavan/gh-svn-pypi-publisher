@@ -62,6 +62,13 @@ if __name__ == "__main__":
         os.environ.get("SIGNATURE_CHECK_CONFIG")
     )
 
+    if not signature_check_config:
+        console.print(
+            "[red]Error: SIGNATURE_CHECK_CONFIG not set[/]\n"
+            "You must set `SIGNATURE_CHECK_CONFIG` environment variable to run this script"
+        )
+        exit(1)
+
     for check in signature_check_config:
         console.print(f"[blue]{check.get('description')}[/]")
         if check.get("method") == "gpg":

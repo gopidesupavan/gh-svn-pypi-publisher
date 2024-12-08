@@ -12,6 +12,7 @@ from typing import Any
 from rich.console import Console
 
 console = Console(width=400, color_system="standard")
+
 svn_files = os.listdir()
 
 invalid_checksums = []
@@ -58,6 +59,13 @@ if __name__ == "__main__":
     check_sum_config: list[dict[str, Any]] = json.loads(
         os.environ.get("CHECK_SUM_CONFIG")
     )
+
+    if not check_sum_config:
+        console.print(
+            "[red]Error: CHECK_SUM_CONFIG not set[/]\n"
+            "You must set `CHECK_SUM_CONFIG` environment variable to run this script"
+        )
+        exit(1)
 
     for check in check_sum_config:
         console.print(f"[blue]{check.get('description')}[/]")
