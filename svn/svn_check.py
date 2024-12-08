@@ -66,7 +66,9 @@ if __name__ == "__main__":
         exit(1)
 
     if not svn_files:
-        console.print(f"[red]Error: No files found in SVN directory at {os.environ.get('REPO_PATH')}[/]")
+        console.print(
+            f"[red]Error: No files found in SVN directory at {os.environ.get('REPO_PATH')}[/]"
+        )
         exit(1)
 
     for check in svn_check_config:

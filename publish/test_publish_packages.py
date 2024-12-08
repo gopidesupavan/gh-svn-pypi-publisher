@@ -318,7 +318,12 @@ class TestPublishPackages:
 
         temp_dev_svn_folder = tempfile.TemporaryDirectory()
         os.chdir(temp_dev_svn_folder.name)
-        write_data(["apache_airflow_providers-airbyte-9.1.0.tar.gz.sha512",], temp_dev_svn_folder.name)
+        write_data(
+            [
+                "apache_airflow_providers-airbyte-9.1.0.tar.gz.sha512",
+            ],
+            temp_dev_svn_folder.name,
+        )
 
         with pytest.raises(SystemExit):
             publish_packages_finder.find_matched_packages_between_dev_and_release(
