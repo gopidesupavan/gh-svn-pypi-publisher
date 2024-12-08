@@ -29,21 +29,6 @@ inputs:
       Checkout directory of svn repo, this is used to checkout the svn repo.
     required: false
     default: "asf-dist"
-  repo-url:
-    description: >
-      URL of the svn repo ex: https://dist.apache.org/repos/dist/release/airflow/
-      this is used to checkout the svn repo.
-    required: true
-  repo-path:
-    description: >
-      Path to the svn repo. Lets say to publish the packages from the dev folder.
-      eg: svn repo structure is https://dist.apache.org/repos/dist/
-        dev/airflow/providers
-        release/airflow/providers
-      now to publish the packages from dev providers folder, set url and path like below in the release-config.yml
-      url: https://dist.apache.org/repos/dist/dev/airflow
-      repo-path: providers/
-    required: true
   mode:
     description: >
       Mode to run the action, The default mode is 'VERIFY' which will only verify the packages and displays the what will be published.
@@ -68,7 +53,6 @@ runs:
       id: move-release-dists
       env:
         PUBLISH_PACKAGES_CONFIG: ${{ inputs.publish-config }}
-        SOURCE_PATH: ${{ github.workspace }}/${{ inputs.temp-dir }}/${{ inputs.repo-path }}
         DIST_PATH: "${{ github.workspace }}/${{ inputs.temp-dir }}/dist"
         MODE: ${{ inputs.mode }}
       run: |

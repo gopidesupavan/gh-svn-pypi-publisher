@@ -13,21 +13,6 @@ inputs:
       Checkout directory of svn repo, this is used to checkout the svn repo.
     required: false
     default: "asf-dist"
-  repo-url:
-    description: >
-      URL of the svn repo ex: https://dist.apache.org/repos/dist/release/airflow/
-      this is used to checkout the svn repo.
-    required: true
-  repo-path:
-    description: >
-      Path to the svn repo. Lets say to publish the packages from the dev folder.
-      eg: svn repo structure is https://dist.apache.org/repos/dist/
-        dev/airflow/providers
-        release/airflow/providers
-      now to publish the packages from dev providers folder, set url and path like below in the release-config.yml
-      url: https://dist.apache.org/repos/dist/dev/airflow
-      repo-path: providers/
-    required: true
 
 runs:
   using: "composite"

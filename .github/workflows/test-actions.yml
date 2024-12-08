@@ -4,8 +4,8 @@ description: "Publish to PyPI"
 on:
   workflow_dispatch:
     inputs:
-      publish-config:
-        description: "Path to the publish config file"
+      release-config:
+        description: "Path to the release config file"
         required: true
         default: "release-config.yml"
       temp-dir:
@@ -21,6 +21,8 @@ on:
 jobs:
   gh-action-pypi-publish:
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
     environment: test
     steps:
      - name: Checkout Code
@@ -35,7 +37,7 @@ jobs:
        id: config-parser
        uses: ./read-config
        with:
-        publish-config: ${{ inputs.publish-config }}
+        release-config: ${{ inputs.release-config }}
 
      - name: "Checkout svn ${{ fromJSON(steps.config-parser.outputs.publisher-url) }}"
        id: "svn-checkout"
@@ -50,34 +52,27 @@ jobs:
        uses: ./svn
        with:
         svn-config: ${{ steps.config-parser.outputs.checks-svn }}
-        repo-url: ${{ fromJSON(steps.config-parser.outputs.publisher-url) }}
-        repo-path: ${{ fromJSON(steps.config-parser.outputs.publisher-path) }}
+        temp-dir: ${{ inputs.temp-dir }}
 
      - name: "Checksum check"
        id: "checksum-check"
        uses: ./checksum
        with:
         checksum-config: ${{ steps.config-parser.outputs.checks-checksum }}
-        repo-url: ${{ fromJSON(steps.config-parser.outputs.publisher-url) }}
-        repo-path: ${{ fromJSON(steps.config-parser.outputs.publisher-path) }}
+        temp-dir: ${{ inputs.temp-dir }}
 
      - name: "Signature check"
        id: "signature-check"
        uses: ./signature
        with:
         signature-config: ${{ steps.config-parser.outputs.checks-signature }}
-        repo-url: ${{ fromJSON(steps.config-parser.outputs.publisher-url) }}
-        repo-path: ${{ fromJSON(steps.config-parser.outputs.publisher-path) }}
+        temp-dir: ${{ inputs.temp-dir }}
 
      - name: "Find ${{ steps.config-parser.outputs.publisher-name }} packages"
-       permissions:
-         id-token: write
        id: "publish-to-pypi"
        uses: ./publish
        with:
         publish-config: ${{ steps.config-parser.outputs.checks-publish }}
-        repo-url: ${{ fromJSON(steps.config-parser.outputs.publisher-url) }}
-        repo-path: ${{ fromJSON(steps.config-parser.outputs.publisher-path) }}
         temp-dir: ${{ inputs.temp-dir }}
         mode: ${{ inputs.mode }}
         publisher-name: ${{ fromJSON(steps.config-parser.outputs.publisher-name) }}

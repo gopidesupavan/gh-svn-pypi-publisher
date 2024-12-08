@@ -1,7 +1,8 @@
 name: "Config parser"
-description: "Parse the publish config file"
+description: "Parse the release-config file"
+
 inputs:
-  publish-config:
+  release-config:
     description: >
       Path to the release config file, this is used to parse the release config file.
       And outputs all the sections of the release config file. default will be release-config.yml in project root.
