@@ -16,12 +16,12 @@ from rich.console import Console
 
 console = Console(width=400, color_system="standard")
 
-# We always work on the path provided in the release config eg: below release.path is airflow/providers/ so
-# the current working directory will be airflow/providers/
+# We always work on the path provided in the release config eg: below publisher.path is providers/ so
+# the current working directory will be providers/
 # release:
 #   name: providers
 #   url: https://dist.apache.org/repos/dist/dev/airflow/"
-#   path: airflow/providers/
+#   path: providers/
 
 
 class PublishPackagesFinder:
