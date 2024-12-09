@@ -3,6 +3,7 @@ import tempfile
 
 import pytest
 from pytest_unordered import unordered
+
 from publish.publish_packages_finder import PublishPackagesFinder
 
 
@@ -14,8 +15,7 @@ def write_data(files, path):
             f.write("test")
 
 
-class TestPublishPackages:
-
+class TestPublishPackagesFinder:
     @pytest.mark.parametrize(
         "packages, exclude_config, expected",
         [
@@ -110,9 +110,7 @@ class TestPublishPackages:
         temp_dev_svn_folder = tempfile.TemporaryDirectory()
         os.chdir(temp_dev_svn_folder.name)
         write_data(packages, temp_dev_svn_folder.name)
-        publish_packages_finder.filter_rc_packages_to_publish(
-            exclude_extensions_config=exclude_config
-        )
+        publish_packages_finder.filter_rc_packages_to_publish(exclude_extensions_config=exclude_config)
 
         assert publish_packages_finder.final_packages_to_publish == unordered(expected)
 
@@ -287,9 +285,7 @@ class TestPublishPackages:
         # Write some files to temporary release folder
         write_data(
             temp_release_dir_files,
-            os.path.join(
-                publish_packages_finder.svn_dist_release_dir, compare_config.get("path")
-            ),
+            os.path.join(publish_packages_finder.svn_dist_release_dir, compare_config.get("path")),
         )
 
         # Write some files to temporary dev svn folder
@@ -297,13 +293,8 @@ class TestPublishPackages:
         os.chdir(temp_dev_svn_folder.name)
         write_data(temp_dev_svn_files, temp_dev_svn_folder.name)
 
-        publish_packages_finder.find_matched_packages_between_dev_and_release(
-            compare_config
-        )
-        assert (
-            publish_packages_finder.matched_packages_between_dev_and_release
-            == unordered(expected)
-        )
+        publish_packages_finder.find_matched_packages_between_dev_and_release(compare_config)
+        assert publish_packages_finder.matched_packages_between_dev_and_release == unordered(expected)
 
     def test_find_matched_packages_between_dev_and_release_when_no_match_should_fail(
         self,

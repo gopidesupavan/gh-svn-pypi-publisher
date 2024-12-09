@@ -2,11 +2,12 @@ import tempfile
 from unittest.mock import patch
 
 import gnupg
+
 from signature.signature_check import (
-    temp_signature_key_file_path,
-    svn_files,
-    validate_signature_with_gpg,
     invalid_signature_files,
+    svn_files,
+    temp_signature_key_file_path,
+    validate_signature_with_gpg,
 )
 
 
@@ -36,7 +37,7 @@ def test_sign_file(mock_download_keys):
     )
     svn_files.extend([sample_file, sig_file])
     validate_signature_with_gpg({"keys": temp_signature_key_file_path})
-    assert invalid_signature_files == []
+    assert not invalid_signature_files
 
 
 @patch("signature.signature_check.download_keys")
@@ -61,4 +62,4 @@ def test_sign_file_should_fail_when_not_signed(mock_download_keys):
         f.write(b"")
     svn_files.extend([sample_file, sig_file])
     validate_signature_with_gpg({"keys": temp_signature_key_file_path})
-    assert invalid_signature_files != []
+    assert invalid_signature_files

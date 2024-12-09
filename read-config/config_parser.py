@@ -8,6 +8,7 @@
 # ///
 import json
 import os
+import sys
 
 import yaml
 from jsonschema.validators import validator_for
@@ -23,7 +24,7 @@ if not config_file:
         "[red]Error:  RELEASE_CONFIG_FILE not set[/]\n"
         "You must set `RELEASE_CONFIG_FILE` environment variable to run this script"
     )
-    exit(1)
+    sys.exit(1)
 
 
 def set_outputs(yml_config):
@@ -92,9 +93,5 @@ if __name__ == "__main__":
     console.print("")
     console.print("[blue]Starting validations for:[/]")
     console.print(f"[blue]  Project: {yml_config_data.get('project').get('name')}[/]")
-    console.print(
-        f"[blue]  Description: {yml_config_data.get('project').get('description')}[/]"
-    )
-    console.print(
-        f"[blue]  Publisher: {yml_config_data.get('publisher').get('name')}[/]"
-    )
+    console.print(f"[blue]  Description: {yml_config_data.get('project').get('description')}[/]")
+    console.print(f"[blue]  Publisher: {yml_config_data.get('publisher').get('name')}[/]")

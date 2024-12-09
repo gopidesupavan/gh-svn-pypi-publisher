@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import sys
 from typing import Any
 
 from rich.console import Console
@@ -35,9 +36,10 @@ def check_with_regex(file_to_check: str, pattern: str, check_type: str) -> bool 
 
     if check_type == "extension":
         return match and file_to_check.endswith(match.group(1))
-
     elif check_type == "package_name":
         return match and match.group(1) in file_to_check
+
+    return None
 
 
 def check_files_with_identifiers(
@@ -57,7 +59,6 @@ def check_files_with_identifiers(
     for identifier in identifiers:
         if identifier.get("type") == "regex":
             regex_pattern = identifier.get("pattern")
-
             [
                 dist_svn_files_copy.remove(file)
                 for file in dist_svn_files
@@ -72,28 +73,22 @@ def check_files_with_identifiers(
 
 
 if __name__ == "__main__":
-    svn_check_config: list[dict[str, Any]] = json.loads(
-        os.environ.get("SVN_CHECK_CONFIG")
-    )
+    svn_check_config: list[dict[str, Any]] = json.loads(os.environ.get("SVN_CHECK_CONFIG"))
 
     if not svn_check_config:
         console.print(
             "[red]Error:  SVN_CHECK_CONFIG not set[/]\n"
             "You must set `SVN_CHECK_CONFIG` environment variable to run this script"
         )
-        exit(1)
+        sys.exit(1)
 
     if not svn_files:
-        console.print(
-            f"[red]Error: No files found in SVN directory at {os.environ.get('REPO_PATH')}[/]"
-        )
-        exit(1)
+        console.print(f"[red]Error: No files found in SVN directory at {os.environ.get('REPO_PATH')}[/]")
+        sys.exit(1)
 
     for check in svn_check_config:
         console.print(f"[blue]{check.get('description')}[/]")
-        check_files_with_identifiers(
-            check.get("identifiers"), svn_files, check.get("id")
-        )
+        check_files_with_identifiers(check.get("identifiers"), svn_files, check.get("id"))
 
     exit_code = 0
 
@@ -109,6 +104,6 @@ if __name__ == "__main__":
 
     if exit_code != 0:
         console.print("[red]SVN check failed[/]")
-        exit(exit_code)
+        sys.exit(exit_code)
 
     console.print("[blue]SVN check passed successfully[/]")
