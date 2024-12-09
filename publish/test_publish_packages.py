@@ -301,7 +301,10 @@ class TestPublishPackages:
         publish_packages_finder.find_matched_packages_between_dev_and_release(
             compare_config
         )
-        assert publish_packages_finder.matched_packages_between_dev_and_release == unordered(expected)
+        assert (
+            publish_packages_finder.matched_packages_between_dev_and_release
+            == unordered(expected)
+        )
 
     def test_find_matched_packages_between_dev_and_release_when_no_match_should_fail(
         self,
