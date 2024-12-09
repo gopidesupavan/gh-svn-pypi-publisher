@@ -2,7 +2,7 @@ import os.path
 import tempfile
 
 import pytest
-
+from pytest_unordered import unordered
 from publish.publish_packages_finder import PublishPackagesFinder
 
 
@@ -60,7 +60,7 @@ class TestPublishPackages:
         after_exclude_packages = publish_packages_finder.exclude_packages_to_publish(
             packages=packages, exclude_config=exclude_config
         )
-        assert set(after_exclude_packages) == set(expected)
+        assert after_exclude_packages == unordered(expected)
 
     #
     @pytest.mark.parametrize(
@@ -115,7 +115,7 @@ class TestPublishPackages:
             exclude_extensions_config=exclude_config
         )
 
-        assert set(publish_packages_finder.final_packages_to_publish) == set(expected)
+        assert publish_packages_finder.final_packages_to_publish == unordered(expected)
 
     @pytest.mark.parametrize(
         "packages, package_name_config, expected",
@@ -171,7 +171,7 @@ class TestPublishPackages:
         extracted_names = publish_packages_finder.extract_package_names(
             package_name_config=package_name_config, lookup_packages=packages
         )
-        assert set(extracted_names) == set(expected)
+        assert extracted_names == unordered(expected)
 
     @pytest.mark.parametrize(
         "compare_config, temp_release_dir_files, temp_dev_svn_files, expected",
@@ -301,9 +301,7 @@ class TestPublishPackages:
         publish_packages_finder.find_matched_packages_between_dev_and_release(
             compare_config
         )
-        assert set(
-            publish_packages_finder.matched_packages_between_dev_and_release
-        ) == set(expected)
+        assert publish_packages_finder.matched_packages_between_dev_and_release == unordered(expected)
 
     def test_find_matched_packages_between_dev_and_release_when_no_match_should_fail(
         self,
@@ -418,4 +416,4 @@ class TestPublishPackages:
                 }
             ],
         )
-        assert set(publish_packages_finder.final_packages_to_publish) == set(expected)
+        assert publish_packages_finder.final_packages_to_publish == unordered(expected)
