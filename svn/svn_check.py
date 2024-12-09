@@ -22,6 +22,15 @@ unknown_file_extensions = []
 
 
 def check_with_regex(file_to_check: str, pattern: str, check_type: str) -> bool | None:
+    """
+    Check the file with the regex pattern that matches the file extension or package name
+
+    :param file_to_check:
+    :param pattern: pattern to match the file eg: ".*(tar.gz)$"
+    :param check_type: Type of check to perform, eg: extension, package_name
+    :return:  bool | None
+
+    """
     match = re.match(pattern, file_to_check)
 
     if check_type == "extension":
@@ -32,25 +41,34 @@ def check_with_regex(file_to_check: str, pattern: str, check_type: str) -> bool 
 
 
 def check_files_with_identifiers(
-    identifiers: list[dict[str, Any]], all_files: list[str], check_type: str
+    identifiers: list[dict[str, Any]], dist_svn_files: list[str], check_type: str
 ):
-    all_files_copy = all_files.copy()
+    """
+    Check the files with the identifiers, an identifier can be a regex pattern to identify the file extension or package name
+
+    :param identifiers: An array of identifiers to use for checking, eg: [{"type": "regex", "pattern": ".*(tar.gz)$"}]
+    :param dist_svn_files: List of files from the SVN directory
+    :param check_type: Type of check to perform, eg: extension, package_name
+    :return: None
+    """
+
+    dist_svn_files_copy = dist_svn_files.copy()
 
     for identifier in identifiers:
         if identifier.get("type") == "regex":
             regex_pattern = identifier.get("pattern")
 
             [
-                all_files_copy.remove(file)
-                for file in all_files
+                dist_svn_files_copy.remove(file)
+                for file in dist_svn_files
                 if check_with_regex(file, regex_pattern, check_type)
             ]
 
     if check_type == "extension":
-        unknown_file_extensions.extend(all_files_copy)
+        unknown_file_extensions.extend(dist_svn_files_copy)
 
     elif check_type == "package_name":
-        unknown_files.extend(all_files_copy)
+        unknown_files.extend(dist_svn_files_copy)
 
 
 if __name__ == "__main__":

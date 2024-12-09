@@ -12,7 +12,6 @@ def write_data(files, path):
     for file in files:
         with open(os.path.join(path, file), "w") as f:
             f.write("test")
-    print(os.listdir(path))
 
 
 class TestPublishPackages:
