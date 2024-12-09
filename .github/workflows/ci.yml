@@ -17,5 +17,5 @@ jobs:
           python-version: '3.11'
       - name: "Run tests"
         run: |
-            python3 -m pip install uv pytest rich python-gnupg
+            python3 -m pip install uv pytest rich python-gnupg requests
             uv run pytest -vv
