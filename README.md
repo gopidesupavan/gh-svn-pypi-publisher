@@ -229,14 +229,15 @@ on:
         default: "VERIFY"
 
 jobs:
-  gh-action-pypi-publish:
+  release-checks:
+    outputs:
+      publisher-name: ${{ steps.config-parser.outputs.publisher-name }}
     runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-    environment: test
     steps:
      - name: Checkout Code
        uses: actions/checkout@v4
+       with:
+         persist-credentials: false
 
      - name: Setup Python
        uses: actions/setup-python@v4
@@ -249,7 +250,7 @@ jobs:
        with:
         release-config: ${{ inputs.release-config }}
 
-     - name: "Checkout svn ${{ steps.config-parser.outputs.publisher-url}}"
+     - name: "Checkout svn ${{ steps.config-parser.outputs.publisher-url }}"
        id: "svn-checkout"
        uses: ./init
        with:
@@ -291,17 +292,28 @@ jobs:
         publisher-name: ${{ steps.config-parser.outputs.publisher-name }}
         repo-path: ${{ steps.config-parser.outputs.publisher-path }}
 
-     - name: "Download release distributions for ${{ steps.config-parser.outputs.publisher-name }}"
-       uses: actions/download-artifact@v4
-       with:
-         merge-multiple: true
-         path: ./dist
+  publish-to-pypi:
+    name: Publish svn packages to PyPI
+    runs-on: ubuntu-latest
+    needs:
+      - release-checks
+    environment:
+      name: test
+    permissions:
+      id-token: write  # IMPORTANT: mandatory for trusted publishing
 
-     - name: "Publishing ${{ steps.config-parser.outputs.publisher-name }} to PyPI"
-       uses: pypa/gh-action-pypi-publish@release/v1
-       if: inputs.mode == 'RELEASE'
-       with:
-         packages-dir: "./dist"
+    steps:
+      - name: "Download release distributions for ${{ needs.release-checks.outputs.publisher-name }}"
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          path: ./dist
+
+      - name: "Publishing ${{ needs.release-checks.outputs.publisher-name }} to PyPI"
+        uses: pypa/gh-action-pypi-publish@release/v1
+        if: inputs.mode == 'RELEASE'
+        with:
+          packages-dir: "./dist"
 ```
 
 The `mode` input is used to run the action in different modes.
