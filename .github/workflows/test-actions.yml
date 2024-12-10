@@ -89,7 +89,6 @@ jobs:
       - release-checks
     environment:
       name: test
-      url: https://pypi.org/project/pip/${{ github.ref_name }}
     permissions:
       id-token: write  # IMPORTANT: mandatory for trusted publishing
 
