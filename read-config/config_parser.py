@@ -15,7 +15,6 @@ from jsonschema.validators import validator_for
 from rich.console import Console
 
 console = Console(width=200, color_system="standard")
-
 config_file = os.environ.get("RELEASE_CONFIG_FILE")
 schema_path = os.environ.get("RELEASE_CONFIG_SCHEMA")
 
@@ -36,11 +35,11 @@ def set_outputs(yml_config):
 
     with open(os.environ["GITHUB_OUTPUT"], "a") as f:
         for root_element, root_values in yml_config.items():
-            if isinstance(root_values, dict):
-                for key, value in root_values.items():
+            for key, value in root_values.items():
+                if isinstance(value, dict) or isinstance(value, list):
                     f.write(f"{root_element}-{key}={json.dumps(value)}\n")
-            else:
-                f.write(f"{root_element}={json.dumps(root_values)}\n")
+                else:
+                    f.write(f"{root_element}-{key}={value}\n")
 
 
 def read_file(path) -> dict:
