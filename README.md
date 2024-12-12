@@ -4,8 +4,17 @@
 
 ## Composite Actions Used in This Repo
 
-### read-config
+## read-config Action
 This action reads the release configuration file and writes output to `GITHUB_OUTPUTS`. The configuration file is a YAML file containing rules to validate and config for the publish process.
+
+### Usage
+```yaml
+- name: "Config parser"
+  id: config-parser
+  uses: ./read-config
+  with:
+    release-config: ${{ inputs.release-config }}
+```
 
 **Example configuration file:**
 
@@ -77,7 +86,7 @@ To publish the packages from the `dev/providers` folder, set `url` and `path` in
 url: https://dist.apache.org/repos/dist/dev/airflow
 repo-path: providers/
 ```
-### INIT Action
+## INIT Action
 This action is used to checkout the SVN repository to a temporary directory in the runner.  
 It uses the configuration from the `read-config` action to checkout the repository.
 
@@ -86,7 +95,18 @@ It uses the configuration from the `read-config` action to checkout the reposito
 - **`repo-url`**: URL of the SVN repository to checkout.
 - **`repo-path`**: Path to the directory where the artifacts are stored in the SVN repository.
 
-### SVN Action
+### Usage
+```yaml
+- name: "Checkout svn ${{ steps.config-parser.outputs.publisher-url }}"
+  id: "svn-checkout"
+  uses: ./init
+  with:
+    temp-dir: ${{ inputs.temp-dir }}
+    repo-url: ${{ steps.config-parser.outputs.publisher-url }}
+    repo-path: ${{ steps.config-parser.outputs.publisher-path }}
+```
+
+## SVN Action
 Action to validate the file name patterns and extensions of the artifacts in the SVN repository.
 
 This action uses the `svn` section from the `release-config.yml` to validate the artifacts. An example configuration is shown below.
@@ -128,7 +148,18 @@ It checks whether each package name matches the required pattern or not.
 
 At present, the **SVN Action** supports **only regex type identifiers** to validate the package names and extensions.
 
-### Checksum Action
+### Usage
+```yaml
+- name: "Svn check"
+  id: "svn-check"
+  uses: ./svn
+  with:
+    svn-config: ${{ steps.config-parser.outputs.checks-svn }}
+    temp-dir: ${{ inputs.temp-dir }}
+    repo-path: ${{ steps.config-parser.outputs.publisher-path }}
+```
+
+## Checksum Action
 Action to validate the checksum of the artifacts in the SVN repository.
 
 This action uses the `checksum` section from the `release-config.yml` to validate the artifacts. An example configuration is shown below.
@@ -147,7 +178,18 @@ It checks the checksum of the artifacts with the provided checksum type.
 
 Provide the checksum type in the `algorithm` field. eg: you may provide `sha512` or `sha256` as the checksum type. anything that is supported by the `hashlib` module in Python.
 
-### Signature Action
+### Usage
+```yaml
+- name: "Checksum check"
+  id: "checksum-check"
+  uses: ./checksum
+  with:
+    checksum-config: ${{ steps.config-parser.outputs.checks-checksum }}
+    temp-dir: ${{ inputs.temp-dir }}
+    repo-path: ${{ steps.config-parser.outputs.publisher-path }}
+```
+
+## Signature Action
 Action to validate the signature of the artifacts in the SVN repository.
 
 This action uses the `signature` section from the `release-config.yml` to validate the artifacts. An example configuration is shown below.
@@ -167,7 +209,18 @@ It checks the signature of the artifacts with the provided GPG keys file in the 
 
 At present, the **Signature Action** supports **only GPG type identifiers** to validate the signature of the artifacts.
 
-### Publish Action
+### Usage
+```yaml
+- name: "Signature check"
+  id: "signature-check"
+  uses: ./signature
+  with:
+    signature-config: ${{ steps.config-parser.outputs.checks-signature }}
+    temp-dir: ${{ inputs.temp-dir }}
+    repo-path: ${{ steps.config-parser.outputs.publisher-path }}
+```
+
+### Artifacts Action
 Action to publish the artifacts to PyPI.
 
 This action uses the `publish` section from the `release-config.yml` to publish the artifacts. An example configuration is shown below.
@@ -204,6 +257,23 @@ The `release-type` and `compare` sections are part of the validation and publish
 This section contains the release svn folder configuration, 
 it compares the packages in the `dev/` folder with release folder and only matching packages will be published to PyPI.
 
+### Usage
+```yaml
+- name: "Find ${{ steps.config-parser.outputs.publisher-name }} packages"
+  id: "upload-artifacts"
+  uses: ./artifacts
+  with:
+    publish-config: ${{ steps.config-parser.outputs.checks-publish }}
+    temp-dir: ${{ inputs.temp-dir }}
+    mode: ${{ inputs.mode }}
+    publisher-name: ${{ steps.config-parser.outputs.publisher-name }}
+    repo-path: ${{ steps.config-parser.outputs.publisher-path }}
+    if-no-files-found: ${{ inputs.if-no-files-found }}
+    retention-days: ${{ inputs.retention-days }}
+    compression-level: ${{ inputs.compression-level }}
+    overwrite: ${{ inputs.overwrite }}
+```
+
 ## Example Workflow
 A sample github workflow file to use the composite actions is shown below:
 
@@ -227,6 +297,47 @@ on:
         description: "Mode to run the action"
         required: false
         default: "VERIFY"
+      if-no-files-found:
+        description: >
+          The desired behavior if no files are found using the provided path.
+  
+          Available Options:
+            warn: Output a warning but do not fail the action
+            error: Fail the action with an error message
+            ignore: Do not output any warnings or errors, the action does not fail
+        default: 'warn'
+      retention-days:
+        description: >
+          Duration after which artifact will expire in days. 0 means using default retention.
+  
+          Minimum 1 day.
+          Maximum 90 days unless changed from the repository settings page.
+        default: '5'
+      compression-level:
+        description: >
+          The level of compression for Zlib to be applied to the artifact archive.
+          The value can range from 0 to 9:
+          - 0: No compression
+          - 1: Best speed
+          - 6: Default compression (same as GNU Gzip)
+          - 9: Best compression
+          Higher levels will result in better compression, but will take longer to complete.
+          For large files that are not easily compressed, a value of 0 is recommended for significantly faster uploads.
+        default: '6'
+      overwrite:
+        description: >
+          If true, an artifact with a matching name will be deleted before a new one is uploaded.
+          If false, the action will fail if an artifact for the given name already exists.
+          Does not fail if the artifact does not exist.
+        default: 'false'
+
+      artifact-name:
+        description: >
+          The name of the artifact to be uploaded.
+        required: false
+        default: "pypi-packages"
+
+
 
 jobs:
   release-checks:
@@ -283,14 +394,19 @@ jobs:
         repo-path: ${{ steps.config-parser.outputs.publisher-path }}
 
      - name: "Find ${{ steps.config-parser.outputs.publisher-name }} packages"
-       id: "publish-to-pypi"
-       uses: ./publish
+       id: "upload-artifacts"
+       uses: ./artifacts
        with:
         publish-config: ${{ steps.config-parser.outputs.checks-publish }}
         temp-dir: ${{ inputs.temp-dir }}
         mode: ${{ inputs.mode }}
         publisher-name: ${{ steps.config-parser.outputs.publisher-name }}
         repo-path: ${{ steps.config-parser.outputs.publisher-path }}
+        if-no-files-found: ${{ inputs.if-no-files-found }}
+        retention-days: ${{ inputs.retention-days }}
+        compression-level: ${{ inputs.compression-level }}
+        overwrite: ${{ inputs.overwrite }}
+
 
   publish-to-pypi:
     name: Publish svn packages to PyPI
@@ -306,6 +422,7 @@ jobs:
       - name: "Download release distributions for ${{ needs.release-checks.outputs.publisher-name }}"
         uses: actions/download-artifact@v4
         with:
+          name: ${{ inputs.artifact-name }}
           merge-multiple: true
           path: ./dist
 
